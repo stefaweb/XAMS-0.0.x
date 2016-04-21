@@ -1,0 +1,35 @@
+XAMS RELEASE HOWTO
+==================
+
+- Update version in autogen.conf.orig
+- Do the final commit
+- Tag it
+    # svn cp https://xams.svn.sourceforge.net/svnroot/xams/xams/branches/0.0.x https://xams.svn.sourceforge.net/svnroot/xams/xams/tags/0.0.20 -m "tagged 0.0.20"
+- Generate release files (using release.pl)
+    # ./release.pl xams-release-catalog xams-0.0.20
+- Check if packages are ok (contains everything, version is ok, etc.)
+- Upload to SourceForge (ftp://upload.sf.net/incoming)
+- SourceForge
+    -> Admin -> File Releases -> Add Release
+    -> New Release 0.0.20
+    -> Add notes
+    -> Add changes since last release (Set Preserve my pre-formatted text!)
+    -> Add uploaded files
+    -> Update all files (Platform-Independent, Source .gz/bz2)
+    -> Send notice
+- Freshmeat
+    -> Login
+    -> Search for XAMS
+    -> Add release
+    -> Add a short changelog
+    -> Update links
+- Website update
+    templates/download/download.html
+    templates/home/home.html
+    templates/status/status.html
+    pad/xams.xml
+    xams_online/VERSION
+    xams_online/version_announcement.php
+    xams_online/news/english.xml
+- Mailing list announcement
+

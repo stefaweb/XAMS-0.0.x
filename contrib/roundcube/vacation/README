@@ -1,0 +1,25 @@
+This is a driver for the Vacation plugin for RoundCube 0.3.x.
+
+The RoudCube plugin can be downloaded from:
+
+http://github.com/bhuisgen/rc-vacation/
+
+NOTES
+---
+- Does not work with safe_mode on, because it needs to read xams.conf
+
+INSTALL
+---
+
+- Instal the vacation plugin from the above URL.
+
+- Copy lib/drivers/xams.php to <path_to_roundcube>/plugins/vacation/lib/drivers/
+
+- Change <path_to_roundcube>/plugins/vacation/config.inc.php to use driver xams:
+  $rcmail_config['vacation_driver'] = 'xams';
+
+- Enable vacation plugin in roundcube <path_to_roundcube>/config/main.inc.php:
+  $rcmail_config['plugins'] = array('vacation');
+
+- You can localize default message in <path_to_roundcube>/plugins/vacation/config.inc.php
+  for your own language.

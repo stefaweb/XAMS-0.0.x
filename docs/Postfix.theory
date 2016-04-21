@@ -1,0 +1,271 @@
+Using Postfix with XAMS
+------------------------
+
+This Document tries to summarize the steps needed to get XAMS working with
+the Postfix MTA. Note that this document is _theoretically_ describing the
+setup and problems coming up, based on my research. Maybe I overlooked
+some features of postfix or misunderstood the documentation, so better
+double-check my sentences.
+I wrote this document because I don't have time enough to contribute to
+XAMS _and_ learn how to use and configure many different MTAs. Also I
+think that an experienced user of any MTA can probably find and implement
+better solutions than i would, simply because of my missing experience
+with them. So we, the XAMS developers, hope this document helps enough
+to implement XAMS with Postfix and that you share your problems, ideas and
+successes with us on the mailing list:
+xams-users@lists.sourceforge.net
+
+
+Ressources:
+------------
+
+Postfix homepage
+http://www.postfix.org/
+Postfix and MySQL documentation
+http://kummefryser.dk/HOWTO/mail/postfix_mysql.html
+Postfix PostgreSQL patches
+http://www.mat.cc/postfix/
+Postfix smtp-auth
+http://www.thecabal.org/~devin/postfix/smtp-auth.txt
+smtp auth, tls, sasl for postfix
+http://howto.state-of-mind.de/
+
+Setup:
+-------
+
+Idea 1:
+--------
+Basically you only need to read the "Postfix and MySQL documentation" for the
+virtual users and domain setup but there's a problem:
+  Due to the many features XAMS has, its DB-table layout is far too
+  complex for the query possibilities postfix provides (look at the .cf files,
+  the select_field and where_field directions are not powerful enough). This
+  is probably only a MySQL problem because PostgreSQL could provide a view
+  suiting postfixes needed table layout.
+  Another solution besides the views in PostgreSQL would be to write a patch or
+  module for postfix to support custom sql queries, so that the table layout
+  of XAMS can be used.
+
+Idea 2:
+--------
+You need to install Cyrus SASL and a PAM module that checks against XAMS-DB.
+Using pam_xams should make that possible and Cyrus IMAP Server can use that
+PAM module too for authentication.
+
+Idea 3:
+--------
+Use a self written pwcheck daemon for postfix. Be sure to enable pwcheck for
+SASL. Postfix and Cyrus IMAP can use that daemon.
+See below for an example daemon i found on the net, it is from
+Meng Weng Wong (mengwong@dumbo.pobox.com)
+Sat Oct 06 2001 sent to the postfix list:
+
+#!@PERL_PATH@ -sw-
+
+# ----------------------------------------------------------
+# mypwcheckd
+# 
+# Meng Weng Wong
+# $Id: mypwcheckd,v 1.2 2001/08/17 05:26:57 devel Exp $
+# 
+# usage: run mypwcheckd at boot
+# 
+# input: accepts unix domain socket connections in /var/pwcheck/pwcheck
+# 
+# output: returns OK or NO based on the user/pass provided.
+# 
+# license: GPL
+# 
+# example:
+# new connection 1!
+# 1: received username tester, password foo
+# 1: sent OK
+# new connection 2!
+# 2: received username tester, password foo
+# 2: sent OK
+# new connection 3!
+# 3: received username exampleuser, password bar
+# 3: sent NO
+# ----------------------------------------------------------
+
+# ----------------------------------------------------------
+
+# initialization
+# ----------------------------------------------------------
+
+my $SOCKFILE = "/var/pwcheck/pwcheck";
+
+my $MYSQL_HOST = "localhost";
+
+
+my $MYSQL_DB = "mail";
+my $MYSQL_TABLE = "smtp_auth";
+my $MYSQL_USER = "xxx";
+my $MYSQL_PASS = "yyy";
+
+my $MYSQL_USERCOL = "alias";
+
+my $MYSQL_CRYPTPW = undef;
+
+my $PIDFILE = "/var/run/mypwcheckd.pid";
+
+# ----------------------------------------------------------
+
+
+# no user-serviceable parts below this line
+# ----------------------------------------------------------
+
+use strict;
+
+use IO::Socket;
+use DBI;
+
+# ----------------------------------------------------------
+
+# authentication routine
+# ----------------------------------------------------------
+
+sub auth_mysql {
+
+    my ($username, $password) = @_;
+
+    my $DBH = DBI->connect("DBI:mysql:database=$MYSQL_DB;hostname=$MYSQL_HOST",
+
+                           $MYSQL_USER,
+                           $MYSQL_PASS);
+    if (not $DBH) {
+        # 
+        # mengwong 20010813: TODO: log warning to syslog
+        #
+
+        # default to OK in case we can't reach the database.
+
+        return "OK: couldn't connect to database: $DBI::errstr";
+    }
+
+    my $MYSQL_GETUSER = $DBH->prepare("SELECT * FROM $MYSQL_TABLE WHERE $MYSQL_USERCOL = ?");
+
+    $MYSQL_GETUSER->execute($username);
+
+    my %result = %{$MYSQL_GETUSER->fetchrow_hashref() || {}};
+
+    $MYSQL_GETUSER->finish();
+
+
+
+
+    $DBH->disconnect();
+
+    if (not keys %result) { return "user unknown"; }
+
+    # by default, if the password is NULL, return OK
+
+
+    if (not defined($result{'password'})) { return "OK: user found but password not defined on SASL server"; }
+
+    if (uc $result{'auth'} ne "OK") { return $result{'auth'} }
+
+    if (crypt($password, $result{'password'})
+
+
+        eq $result{'password'}) { return "OK: password matched" }
+    else { return "incorrect password" }
+
+    return "OK by default";
+
+}
+
+# ----------------------------------------------------------
+
+# main
+# ----------------------------------------------------------
+
+&exit_if_already_running;
+
+$SIG{'HUP'} = \&restart;
+
+unlink $SOCKFILE;
+
+my $sock = IO::Socket::UNIX->new(Local=>$SOCKFILE, Listen=>4, Type=>SOCK_STREAM) or die "mypwcheckd: unable to create socket $SOCKFILE: $!";
+
+chmod(01777, $SOCKFILE);
+
+$SIG{CHLD} = 'IGNORE';
+
+my $connid;
+
+while (my $conn = $sock->accept) {
+
+
+
+
+    $connid++;
+    if (fork) { $conn->close(); next };
+
+    print "new connection $connid!\n";
+
+    my $request; my $c; while ($conn->recv($c, 1024)) { $request .= $c; last if $request =~ /^.*\0.*\0$/; }
+
+    my ($username, $password) = split(/\0/, $request);
+
+
+
+    print " $connid: received username $username, password XXXX\n";
+
+    my $response = auth_mysql($username, $password);
+
+    print " $connid: sending response $response\n";
+
+
+    $conn->send($response . "\0");
+    $conn->flush();
+    $conn->close();
+    exit;
+}
+
+sub exit_if_already_running {
+
+    my $writepid = 1;
+    if (open (PIDFILE, $PIDFILE)) {
+        my ($pid) = <PIDFILE>;
+        chomp $pid;
+
+        if ($pid =~ /\d+/) {
+
+            if ($pid == $$) { $writepid = 0; }
+            elsif (kill (0, $pid) == 1) { 
+                print "mypwcheckd: another instance is already running at pid $pid. perhaps you meant to kill -HUP $pid\n";
+                exit (1);
+            }
+        }
+    }
+
+    if ($writepid) {
+
+        open (PIDFILE, ">$PIDFILE") or warn "unable to open $PIDFILE for writing: $!\n";
+        print PIDFILE "$$\n";
+        print PIDFILE "# started at " . scalar(localtime()) . "\n";
+        close PIDFILE;
+    }
+    else {
+        open (PIDFILE, ">>$PIDFILE") or warn "unable to open $PIDFILE for appending: $!\n";
+        print PIDFILE "# restarted at " . scalar(localtime()) . "\n";
+        close PIDFILE;
+    }
+}
+
+sub restart {
+
+    exec($0);
+}
+
+
+As always a lot of rtfm and time is needed to set things up. It would be cool
+though to see someone implementing and documenting postfix support for XAMS.
+I think Idea 3 is better for high-traffic servers, because i don't know how
+to create a PAM module with a persisten database connection. The pam module
+approach would have many other advantages, especially when it comes to other
+services like FTP servers, Shells, ...
+
+--
+Michael Kefeder

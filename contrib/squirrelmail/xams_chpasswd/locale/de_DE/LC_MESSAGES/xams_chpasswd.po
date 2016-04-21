@@ -1,0 +1,69 @@
+# XAMS xams_chpasswd plugin
+# Copyright (c) 2003-2007 The XAMS development team <info@xams.org>
+# $Id$
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.0.3\n"
+"POT-Creation-Date: 2007-03-06 18:01+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: The XAMS development team <info@xams.org>\n"
+"Language-Team: The XAMS development team <info@xams.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: options.php:158
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: options.php:123
+msgid "Change password for "
+msgstr "Passwort ändern für "
+
+#: functions.php:25
+msgid "Here you can change the login password for your mail-account."
+msgstr "Hier können Sie das Login-Passwort für Ihr eMail-Konto ändern."
+
+#: options.php:144
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: options.php:138
+msgid "Old password"
+msgstr "Altes Passwort"
+
+#: functions.php:23
+msgid "Password changing"
+msgstr "Passwort ändern"
+
+#: options.php:157
+msgid "Submit"
+msgstr "Abschicken"
+
+#: options.php:103
+msgid "Unknown error occurred."
+msgstr "Unbekannter Fehler aufgetreten."
+
+#: options.php:150
+msgid "Verify new password"
+msgstr "Neues Passwort bestätigen"
+
+#: options.php:83
+msgid "You must type in a new password."
+msgstr "Sie müssen ein neues Passwort angeben."
+
+#: options.php:80
+msgid "You must type in your old password."
+msgstr "Sie müssen Ihr altes Passwort eingeben."
+
+#: options.php:89
+msgid "Your new password does not match the verification password."
+msgstr "Ihr neues Passwort stimmt nicht mit dem zu Überprüfenden überein."
+
+#: options.php:86
+msgid "Your new password must be different than your old password."
+msgstr "Ihr neues Passwort muss anders sein als das Alte."
+
+#: options.php:100
+msgid "Your old password is not correct."
+msgstr "Ihr altes Passwort ist nicht korrekt."

@@ -1,0 +1,20 @@
+XAMS installation on Linux Debian 4.0 (Etch) and Debian 5.0 (Lenny)
+-------------------------------------------------------------------
+
+The interim Debian installation doc is located in 
+
+    docs/install/debian/etch-lenny/INSTALL
+
+To have a good reading of the Debian INSTALL documentation, go first
+to the XAMS README, follow install guide in section 3 and run "autogen.conf".
+This will generate all the INSTALL file with the right setup according to
+your personalized autogen.conf.
+
+-> Rename autogen.conf.orig to autogen.conf
+-> Configure autogen.conf (be careful to do not insert space at line end)
+-> Execute ./autogen.sh
+-> Go to docs/install/debian/etch-lenny/INSTALL and follow installation instructions.
+
+If you're upgrading from an older XAMS release, don't forget to apply database update from the "updates" directory.
+
+Have fun!

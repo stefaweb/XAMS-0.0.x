@@ -1,0 +1,13 @@
+; Configuration file for XAMS and squirrelmail
+; comments are only lines that start with a semicolon ';'
+; Sections are between [] brackets
+
+; Here is the Database configuration for the XAMS-WEBMAIL
+; The user of the DB must have rights to select, insert,
+; delete and update in the DB
+[WEBMAIL]
+DBType = mysql
+DBHost = @XAMS_SQL_HOST@ 
+DBUser = @XAMS_SQL_USER@ 
+DBPass = @XAMS_SQL_PASSWORD@ 
+DB = @XAMS_SQL_DATABASE@ 

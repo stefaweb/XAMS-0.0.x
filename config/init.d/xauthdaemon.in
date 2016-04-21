@@ -1,0 +1,36 @@
+#!/bin/sh
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=xauthdaemon
+DAEMON=@XAMS_BINDIR@/authdaemon
+
+set -e
+
+case "$1" in
+    start)
+        echo -n "Starting XAMS authdaemon: "
+        $DAEMON
+        echo "$NAME."
+        ;;
+    stop)
+        echo -n "Stopping XAMS authdaemon: "
+        if [ -e @XAMS_PID_DIR@/authdaemon-xams.pid ] ; then
+            kill `cat @XAMS_PID_DIR@/authdaemon-xams.pid`
+            echo "$NAME."
+        else
+            echo "no $NAME found running."
+        fi
+        ;;
+    restart|force-reload)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|stop|restart}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

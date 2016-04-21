@@ -1,0 +1,35 @@
+.textfield, .checkbox, .radiobutton {
+	background-color: #FFF;
+	border-color: #2370b8;
+	border-width: 1px;
+	color: #2370b8;
+}
+
+select {
+	background-color: #2370b8;
+	color: #FFF;
+}
+
+.formerror {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	color: #FFF;
+}
+
+.forminfo {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	color: #FFF;
+}
+
+.button, .helpbutton {
+	color: #FFF;
+	border-color: #CCCCCC;
+	border-width: 1px;
+	font-size: 10pt;
+}
+
+.button { background-color: #2370b8; }
+
+.helpbutton { background-color: #a7c6e3; }

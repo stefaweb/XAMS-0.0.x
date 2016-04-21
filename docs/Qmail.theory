@@ -1,0 +1,30 @@
+Using QMail with XAMS
+----------------------
+
+This Document tries to summarize the steps needed to get XAMS working with
+the QMail MTA. Note that this document is _theoretically_ describing the
+setup and problems coming up, based on my research. Maybe I overlooked
+some features of QMail or misunderstood the documentation, so better
+double-check my sentences.
+I wrote this document because I don't have time enough to contribute to
+XAMS _and_ learn how to use and configure many different MTAs. Also I
+think that an experienced user of any MTA can probably find and implement
+better solutions than I would, simply because of my missing experience
+with them. So we, the XAMS developers, hope this document helps enough
+to implement XAMS with QMail and that you share your problems, ideas and
+successes with us on the mailing list:
+xams-users@lists.sourceforge.net
+
+Ressources:
+------------
+
+QMail homepage
+http://www.qmail.org/
+
+
+Setup:
+-------
+
+
+--
+Michael Kefeder

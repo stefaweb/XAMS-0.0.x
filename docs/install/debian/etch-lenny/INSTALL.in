@@ -1,0 +1,194 @@
+XAMS installation on Linux Debian 4.0 (Etch) and Debian 5.0 (Lenny)
+-------------------------------------------------------------------
+
+Revision: $LastChangedDate: 2009-02-25 10:20:00 +0200 $
+By Stephane Leclerc <sleclerc@actionweb.fr>
+
+
+To have a good reading of the INSTALL.Debian doc, GO FIRST to the XAMS README install section and run "autogen.conf".
+
+Good luck!
+
+Lines starting with a # sign mean they have to be executed by root.
+Lines starting with a $ sign mean they should be executed by a local user.
+Lines starting with a - sign explain the command(s) that will follow.
+User name and password pairs are separated by a colon, e.g. username:password
+Optional command line parameters are between [], e.g. ./configure [--prefix=/usr]
+
+Needed Debian packages
+----------------------
+
+- XAMS various perl packages
+- With Debian 4.0 (Etch)
+	# apt-get install libunix-syslog-perl libconfig-inifiles-perl libcdb-file-perl libfile-chdir-perl
+- With Debian 5.0 (Lenny)
+- libcdb-file-perl package no longer exist in Debian 5.0 Lenny, use CPAN to download CDB_File
+- Can be downloaded from this address http://search.cpan.org/dist/CDB_File/ or using CPAN tools.
+- The CDB_File package MUST be installed as used by XMU
+	# apt-get install libunix-syslog-perl libconfig-inifiles-perl libfile-chdir-perl
+
+- MySQL packages
+	# apt-get install mysql-server-5.0 mysql-client-5.0 libmysqlclient15-dev (or later)
+
+- BerkeleyDB and SSL Libraries packages
+- With Debian 4.0 (Etch)
+	# apt-get install libdb4.4-dev libssl-dev
+- With Debian 5.0 (Lenny)
+- On Debian 5.0 Lenny use libdb4.6-dev
+	# apt-get install libdb4.6-dev libssl-dev
+
+- Create xams UID and GID
+	# adduser --home /var/www/xams --shell /bin/false --disabled-password --no-create-home xams
+
+- Exim4
+	# apt-get install exim4-daemon-heavy exim4-base
+- Use the config provided by XAMS (In xams-@VERSION@/config/exim4)
+  but be careful when you overwrite your @XAMS_CONFIG_DIR@/exim-mysql.conf or your
+  @EXIM_CONFIG_DIR@/exim4.conf
+	# mkdir /etc/xams
+	# cp xams-@VERSION@/config/exim4/*.conf @XAMS_CONFIG_DIR@
+	# ln -s @XAMS_CONFIG_DIR@/exim.conf @EXIM_CONFIG_DIR@/exim4.conf
+	# cp xams-@VERSION@/config/exim4/mysql/exim-sql-macros.conf @XAMS_CONFIG_DIR@
+- Edit @XAMS_CONFIG_DIR@/exim-custom.conf and change the 'mysql_servers' setting to
+  suit your needs
+- Needed as Courier daemons MUST USE 'mail' UID to have write access to files.
+	# usermod -G mail Debian-exim
+- If you want to add TLS support on Debian
+  Activate TLS_ENCRYPTION = On in @XAMS_CONFIG_DIR@/exim-custom.conf
+- You can generate TLS keys using the following command:
+	# /usr/share/doc/exim4-base/examples/exim-gencert
+	# openssl req -new -key /etc/exim4/exim.key -out /etc/exim4/exim.csr
+
+- Courier
+	# apt-get install courier-imap courier-imap-ssl courier-pop courier-pop-ssl
+- Set the package hold flag on courier-authdaemon so that the debian
+  dependencies are satisfied but no new versions will be installed.
+	# echo courier-authdaemon hold | dpkg --set-selections
+	# /etc/init.d/courier-imap stop
+	# /etc/init.d/courier-imap-ssl stop
+	# /etc/init.d/courier-pop stop
+	# /etc/init.d/courier-pop-ssl stop
+	# /etc/init.d/courier-authdaemon stop
+	# update-rc.d -f courier-authdaemon remove
+- For courier-imap in Debian Lenny: Change "IMAP_MAILBOX_SANITY_CHECK" to "0" in /etc/courier/imapd 
+
+XAMS INSTALL ON DEBIAN
+----------------------
+
+- Edit "database/mysql/xams.sql" to suit your needs
+
+- Create the xams database and tables. Stuff in [] brackets is only needed
+  when root has a password, or you like to use a special db-user.
+  
+- If you have root access on MySQL, use the command below to create database and login.
+	# mysql [-uroot -pPASS] < xams-@VERSION@/database/mysql/xams-create.sql
+
+- Create XAMS database structure
+	# mysql [-uUSER -pPASS] -Dxams < xams-@VERSION@/database/mysql/xams-struct.sql
+
+- Edit "xams-@VERSION@/database/mysql/xams-data.sql" to suit your needs and
+  execute the folowing command.
+	# mysql [-uUSER -pPASS] -Dxams < xams-@VERSION@/database/mysql/xams-data.sql
+
+- Copy the XAMS php interface from gui directory
+	# mkdir /var/www/xams
+	# cp -R xams-@VERSION@/gui/* @XAMS_GUI_DIR@/.
+	# cp xams-@VERSION@/gui/.htaccess @XAMS_GUI_DIR@/.
+	# chown xams.xams -R @XAMS_GUI_DIR@
+	# find @XAMS_GUI_DIR@ -type d -exec chmod 2750 {} \;
+	# find @XAMS_GUI_DIR@ -type f -exec chmod 0640 {} \;
+	# mkdir @XAMS_GUI_DIR@/cache
+	# chmod 2770 @XAMS_GUI_DIR@/cache @XAMS_GUI_DIR@/skins/*/img/{buttons,tabs}
+
+- Copy and edit the XAMS configuration files (In xams-@VERSION@/config)
+	# cp xams-@VERSION@/config/xams/xams.conf @XAMS_CONFIG_DIR@
+	# chown root.xams @XAMS_CONFIG_DIR@/@XAMS_CONFIG@
+	# chmod 640 @XAMS_CONFIG_DIR@/*.conf
+	# chown Debian-exim.xams @XAMS_CONFIG_DIR@
+	# chown root.Debian-exim @XAMS_CONFIG_DIR@/exim*.conf
+	# chown root.Debian-exim @XAMS_CONFIG_DIR@/sa-exim.conf
+	# mkdir -p @XAMS_CONFIG_DIR@ @XAMS_CONFIG_DIR@/autoreply @XAMS_PID_DIR@ @XAMS_BINDIR@
+	# chown Debian-exim.Debian-exim @XAMS_PID_DIR@ @XAMS_CONFIG_DIR@/autoreply
+	# chgrp Debian-exim @COURIER_SOCKET_DIR@
+
+- Setup the XAMS authdaemon
+	# cp xams-@VERSION@/config/init.d/xauthdaemon /etc/init.d/.
+
+- Start xauthdaemon in defaults runlevels
+	# update-rc.d xauthdaemon defaults
+
+/-/-/- open: "@XAMS_CONFIG_DIR@/@XAMS_CONFIG@" -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-
+[GUI]
+DBType = mysql
+DBHost = localhost
+DBUser = user
+DBPass = pass
+DB = xams
+\-\-\- close: "@XAMS_CONFIG_DIR@/@XAMS_CONFIG@" \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+- Courier
+	# cp xams-@VERSION@/scripts/xmu xams-@VERSION@/scripts/authdaemon @XAMS_BINDIR@
+	# mkdir @XMU_BACKUP_DIR@
+	# chown Debian-exim.Debian-exim @XMU_BACKUP_DIR@
+	# cp xams-@VERSION@/scripts/Xmod.pm /usr/lib/perl5/.
+	# rm /var/run/courier/authdaemon/socket
+	# chmod g+w /var/run/courier/authdaemon
+	# /etc/init.d/xauthdaemon start
+	# /etc/init.d/courier-imap start
+	# /etc/init.d/courier-imap-ssl start
+	# /etc/init.d/courier-pop start
+	# /etc/init.d/courier-pop-ssl start
+
+- Some things has to be done periodically on your mail server (creating the
+  CDB-Database for exim for faster domain lookups, creating home directories
+  for newly created users and delete obsolete autoreply files). To do that
+  we add an entrie to root's crontab to do these jobs every ten minutes:
+
+	# crontab -e
+	
+/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-
+*/10 * * * * @XAMS_BINDIR@/xmu --cdbdomlist --homedirs --autoreply --quota > /dev/null
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-/-/-/-/-
+
+- More xmu commands are available for fine maintenance. Try "xmu --help".
+
+- To login into xams as an admin use the 'Usertype'-Dropdown Box on the
+  Login-Page and select "Administrator". Then login with the account data,
+  you have specified during the database-setup step above. If you haven't
+  activated the Usertype-selection in your @XAMS_CONFIG@ then you have to login
+  with a prefix to your login name ('adm_' for an administrator, 'res_' for
+  a reseller - customers and users don't need a prefix).
+
+
+XAMS INSTALL WITH XAMS
+----------------------
+
+- We recommend to use an own apache-process for xams which runs with the
+  user/group xams. This prevents possible security wholes where the standard
+  apache (and all php-able users) can read the @XAMS_CONFIG@.
+  
+  The best tool to use is suphp available as libapache2-mod-suphp Debian package.
+  
+- Create an xmas linux user and place all GUI files inside it.
+  
+	# apt-get install apache2 php5 php5-gd php5-mysql php5-xsl php-pear php-db php5-recode php5-sqlite
+
+- With Debian 4.0 (Etch)
+	# apt-get install libapache2-mod-suphp libapache2-mod-fastcgi
+
+- With Debian 5.0 (Lenny)
+	# apt-get install libapache2-mod-suphp libapache2-mod-fcgid
+	
+- Copy Apache2 config file in the right directory. Edit it according to your setup.
+	# cp xams-@VERSION@/docs/install/debian/etch/files/xams-apache2 /etc/apache2/site-available/.
+
+- Use a2ensite to add the xams apache site definition
+	# a2ensite xams-apache2
+
+- Configure suphp in /etc/suphp.conf and /etc/apache2/mods-available/suphp.conf
+	# /etc/init.d/apache2 restart
+
+Have fun!
+
+--- END ---
+

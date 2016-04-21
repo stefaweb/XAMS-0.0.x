@@ -1,0 +1,61 @@
+# XAMS xams_autoreply plugin
+# Copyright (c) 2003-2007 The XAMS development team <info@xams.org>
+# $Id: xams_autoreply.po 1069 2007-03-06 17:46:19Z stefaweb $
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.0.2\n"
+"POT-Creation-Date: 2007-03-06 18:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: The XAMS development team <info@xams.org>\n"
+"Language-Team: The XAMS development team <info@xams.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: options.php:153
+msgid "Autoreply enabled"
+msgstr "Réponse automatique active"
+
+#: functions.php:23
+msgid "Autoreply update"
+msgstr "Réponse automatique et message d'absence"
+
+#: options.php:178
+msgid "Cancel"
+msgstr "Annuler"
+
+#: options.php:139
+msgid "Change autoreply settings for "
+msgstr "Modifier le réglage pour "
+
+#: functions.php:25
+msgid ""
+"Here you can enable/disable the autoreply functionality and/or change the "
+"autoreply message for your mail account."
+msgstr ""
+"Cette fonction vous permet d'activer ou de désactiver la Réponse Automatique, "
+"et changer le message pour votre compte de messagerie."
+
+#: options.php:106
+msgid "If you enable autoreply you have to enter a subject and a message."
+msgstr "Si vous activez la réponse automatique, vous devez saisir un sujet et le texte du message."
+
+#: options.php:169
+msgid "Message"
+msgstr "Message de réponse"
+
+#: options.php:162
+msgid "Subject"
+msgstr "Sujet"
+
+#: options.php:177
+msgid "Submit"
+msgstr "Valider"
+
+#: options.php:116
+msgid "Unknown error occurred."
+msgstr "Une erreur inconnue s'est produite."
+
+#: options.php:158
+msgid "Yes"
+msgstr "Oui"

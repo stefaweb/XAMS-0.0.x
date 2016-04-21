@@ -1,0 +1,40 @@
+XAMS Change Password plugin for SquirrelMail
+---------------------------------------------
+
+Version 0.0.3
+
+If the system administrator provides users with access to the XAMS GUI,
+it is possible for users to change their passwords. XAMS options can also
+be used to restrict access.
+
+If you do not want your users to use the XAMS GUI to change their passwords,
+this plugin can be used in conjunction with SquirrelMail to provide users
+with a way to change their passwords. (This assumes you use
+SquirrelMail as your tool for providing webmail to your users.)
+
+The installation process is quite simple. Assuming your SquirrelMail is
+installed at @WEBMAIL_DIR@/squirrelmail then perform the following tasks:
+
+# cd /usr/src/xams-@VERSION@/contrib/squirrelmail/
+# cp -R xams_chpasswd @WEBMAIL_DIR@/squirrelmail/plugins/.
+- If xams_global not already installed
+# cp -R xams_global @WEBMAIL_DIR@/squirrelmail/plugins/.
+# cp xams-webmail.conf /etc/squirrelmail/. 
+# chown root.www-data /etc/squirrelmail/xams-webmail.conf
+# chmod 640 /etc/squirrelmail/xams-webmail.conf 
+- Install xams_chpasswd plugin in squirrelmail
+# run squirrelmail-configure 
+- Hit [8] for Plugins
+- Select xams_chpasswd from the 'Available Plugins' list
+- Save [S] and Quit [Q]
+
+Installation of any XAMS plugins for SquirrelMail (including this one) requires
+that you also copy the /usr/src/xams-@VERSION@/contrib/squirrelmail/xams_global
+directory to your SquirrelMail plugins directory!
+
+That's it. After logging into SquirrelMail you should see an additional item in
+your Options menu.
+
+If you want to translate this plugin into your language, take a look at the
+locale sub-directory and also read the relevant SquirrelMail docs on this topic
+at: <http://www.squirrelmail.org/wiki/en_US/TranslatingPlugins>.

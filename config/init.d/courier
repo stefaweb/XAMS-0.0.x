@@ -1,0 +1,33 @@
+#!/bin/sh
+# chkconfig: 235 99 31
+# description: Start or stop the courier IMAP and POP3 server and XAMS daemon
+
+case "$1" in
+'start')
+        /usr/lib/courier-imap/libexec/pop3d.rc start
+        /usr/lib/courier-imap/libexec/imapd.rc start
+        /usr/sbin/authdaemon
+        ;;
+'stop')
+        /usr/lib/courier-imap/libexec/pop3d.rc stop
+        /usr/lib/courier-imap/libexec/imapd.rc stop
+        kill `cat /usr/lib/courier-imap/var/authdaemon/authcheck.pid`
+        ;;
+'status')
+        if [ -s /usr/lib/courier-imap/var/authdaemon/authcheck.pid ]; then
+                pid=`cat /usr/lib/courier-imap/var/authdaemon/authcheck.pid`
+                kill -0 $pid >/dev/null 2>&1
+                if [ "$?" = "0" ]; then
+                        echo "authdaemon (pid $pid) is running"
+                else
+                        echo "authdaemon is stopped"
+                fi
+        else
+                echo "authdaemon is stopped"
+        fi
+        ;;
+*)
+        echo "Usage: $0 { start | stop | status}"
+        ;;
+esac
+exit 0
